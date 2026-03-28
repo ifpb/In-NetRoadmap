@@ -13,7 +13,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.9, <3.10"
 
-dependencies = []
+dependencies = ["click", "tomli"]
 
 [project.scripts]
 inetrm = "inetrm.cli:main"
