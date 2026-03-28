@@ -9,11 +9,14 @@ description = "Framework for building in-network machine learning environments"
 authors = [
 	{name = "Ícaro Machado da Silva", email = "icaromachadosilva@gmail.com"},
 	{name = "Caio Luiz Lacerda Terto Silva", email = "caio.luiz@academico.ifpb.edu.br"}
-	
 ]
-
 readme = "README.md"
 requires-python = ">=3.9, <3.10"
+
+dependencies = []
+
+[project.scripts]
+inetrm = "inetrm.cli:main"
 
 [tool.setuptools]
 packages = {find = {where = ["src"]}}
