@@ -1,6 +1,7 @@
 class Model:
     MODEL_CATALOG = ['decision_tree']
-    FEATURE_CATALOG = ['src_port', 'dst_port']
+    FEATURE_CATALOG = ['sport', 'dport']
+    JUPYTER_MAPPING = {"decision_tree": "train_DT.ipynb"}
 
     def __init__(self, model:str, features:list):
         assert model in Model.MODEL_CATALOG, f"Model {model} not supported."

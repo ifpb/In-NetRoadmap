@@ -1,5 +1,6 @@
 from inetrm.module_a import a_logic as a
 import click
+import os
 
 @click.group(invoke_without_command=True)
 def main():
@@ -7,12 +8,16 @@ def main():
 
 @click.command()
 @click.option("--config", default="config.toml", help="Path to the TOML configuration file.")
+@click.argument('data')
 @click.pass_context
-def train(ctx, config):
+def train(ctx, config, data):
     ctx.ensure_object(dict)
 
     cfg = a.load_config(config)
     a.validate_model(cfg)
+    a.validate_data(cfg, data)
+    a.create_symlink(config, data)
+    a.initiate_jupyter(cfg)
 
     mlmodel = cfg["ml"]["model"]
     mlfeatures = cfg["ml"]["features"]
