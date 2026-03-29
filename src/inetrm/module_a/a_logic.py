@@ -1,25 +1,9 @@
 import nbformat
 from nbformat.v4 import new_code_cell, new_markdown_cell
-import tomli
-import sys
 import csv
 import subprocess
 from pathlib import Path
 from inetrm.module_a.catalog import Model
-
-
-def load_config(config_path: str) -> dict:
-    path = Path(config_path)
-    if not path.is_file():
-        print(f"Error: Configure file '{config_path}' not found.")
-        sys.exit(1)
-    
-    try:
-        with open(path, 'rb') as f:
-            return tomli.load(f)
-    except tomli.TOMLDecodeError as e:
-        print(f"Error parsing TOML file: {e}")
-        sys.exit(1)
 
 
 def validate_model(cfg):
