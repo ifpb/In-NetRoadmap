@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-
+import os
 import click
 
 from inetrm import core
@@ -110,7 +110,7 @@ def build(ctx, output_dir, p4_source, table_1, table_2):
         "table1_path": table_1,
         "table2_path": table_2
     }
-
+    os.makedirs(output_dir + '/ansible', exist_ok=True)
     render_yaml_template(variables, output_dir)
     copy_yaml_template(output_dir)
 

@@ -14,7 +14,7 @@ def render_yaml_template(variables, output_dir):
         
         rendered_content = template.render(variables)
         
-        with open(output_dir + '/' + output_filename, 'w', encoding='utf-8') as f:
+        with open(output_dir + '/ansible/' + output_filename, 'w', encoding='utf-8') as f:
             f.write(rendered_content)
             
         print(f"Generated ansible config file as: {output_filename}")
