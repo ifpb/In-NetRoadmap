@@ -2,7 +2,7 @@ import os
 from jinja2 import Environment, FileSystemLoader
 
 template_filename = 'switch-1-ml.yml.j2'
-output_filename = 'switch-1-ml-rendered.yml'
+output_filename = 'switch-1-ml.yml'
 
 def render_yaml_template(variables, output_dir):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -24,5 +24,3 @@ def render_yaml_template(variables, output_dir):
     except Exception as e:
         print(f"An error has occured: {e}")
 
-if __name__ == "__main__":
-    render_yaml_template()
