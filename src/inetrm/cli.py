@@ -8,6 +8,7 @@ from inetrm.module_a import a_logic as a
 from inetrm.module_b.generate_p4 import generate_p4
 from inetrm.module_b.generate_tables import generate_tables
 from inetrm.module_b.read_tree import exportar_regras_modelo
+from inetrm.module_c.render_template import render_yaml_template
 
 
 @click.group()
@@ -90,6 +91,26 @@ def create_p4(ctx, output_dir, model_file):
         features_thresholds,
         table_output_path,
     )
+
+@main.command()
+@click.option(
+    "--output-dir",
+    default=str(Path.cwd()),
+    type=click.Path(),
+    help="Path to the output dir for artifacts.",
+)
+@click.argument("p4-source", type=click.Path(exists=True))
+@click.argument("table-1", type=click.Path(exists=True))
+@click.argument("table-2", type=click.Path(exists=True))
+@click.pass_context
+def build(ctx, output_dir, p4_source, table_1, table_2):
+    variables = {
+        "p4_source_path": p4_source,
+        "table1_path": table_1,
+        "table2_path": table_2
+    }
+
+    render_yaml_template(variables, output_dir)
 
 
 if __name__ == "__main__":

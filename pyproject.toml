@@ -13,7 +13,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.9, <3.10"
 
-dependencies = ["click", "tomli", "pandas", "numpy", "matplotlib", "scikit-learn", "seaborn", "scipy", "jupyter"]
+dependencies = ["click", "tomli", "pandas", "numpy", "matplotlib", "scikit-learn", "seaborn", "scipy", "jupyter", "jinja2"]
 
 [project.scripts]
 inetrm = "inetrm.cli:main"
