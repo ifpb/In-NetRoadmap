@@ -9,6 +9,7 @@ from inetrm.module_b.generate_p4 import generate_p4
 from inetrm.module_b.generate_tables import generate_tables
 from inetrm.module_b.read_tree import exportar_regras_modelo
 from inetrm.module_c.render_template import render_yaml_template
+from inetrm.module_c.copy_template import copy_yaml_template
 
 
 @click.group()
@@ -111,6 +112,7 @@ def build(ctx, output_dir, p4_source, table_1, table_2):
     }
 
     render_yaml_template(variables, output_dir)
+    copy_yaml_template(output_dir)
 
 
 if __name__ == "__main__":
