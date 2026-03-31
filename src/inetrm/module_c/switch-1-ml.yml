@@ -11,7 +11,7 @@
 
     - name: Compile p4 code
       # Caminho do arquivo .p4 parametrizado
-      command: p4c -b bmv2 {{ p4_source_path }} -o /vagrant/bmv2
+      command: p4c -b bmv2 ./ml_model.p4 -o /vagrant/bmv2
       become: yes
 
     - name: stop previous Bmv2 Switch
@@ -20,7 +20,7 @@
 
     - name: Start Bmv2 Switch with ml model
       # O caminho do .json compilado correspondente ao .p4 também foi parametrizado
-      shell: simple_switch --device-id 1 --thrift-port 9090 --interface 1@enp0s9 --interface 2@enp0s10 /vagrant/bmv2/{{ p4_compiled_path }} &
+      shell: simple_switch --device-id 1 --thrift-port 9090 --interface 1@enp0s9 --interface 2@enp0s10 /vagrant/bmv2/ml_model.json &
       async: 1000
       poll: 5
       become: yes
@@ -32,7 +32,7 @@
 
     - name: Insert model entries in switch table by control plane
       # Caminho da table2.txt parametrizado
-      shell: cat {{ table_model_path }} | simple_switch_CLI
+      shell: cat table_model.txt | simple_switch_CLI
       become: yes
 
     - name: Turn off GSO, TSO and GRO

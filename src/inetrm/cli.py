@@ -8,7 +8,6 @@ from inetrm.module_a import a_logic as a
 from inetrm.module_b.generate_p4 import generate_p4
 from inetrm.module_b.generate_tables import generate_tables
 from inetrm.module_b.read_tree import exportar_regras_modelo
-from inetrm.module_c.render_template import render_yaml_template
 from inetrm.module_c.copy_template import copy_yaml_template
 
 
@@ -93,6 +92,7 @@ def create_p4(ctx, output_dir, model_file):
         table_output_path,
     )
 
+
 @main.command()
 @click.option(
     "--output-dir",
@@ -104,14 +104,8 @@ def create_p4(ctx, output_dir, model_file):
 @click.argument("table", type=click.Path(exists=True))
 @click.pass_context
 def build(ctx, output_dir, p4_source, table):
-    variables = {
-        "p4_source_path": p4_source,
-        "p4_compiled_path": p4_source.replace("p4", "json"),
-        "table_model_path": table,
-    }
-    os.makedirs(output_dir + '/ansible', exist_ok=True)
-    render_yaml_template(variables, output_dir)
-    copy_yaml_template(output_dir)
+    os.makedirs(output_dir + "/ansible", exist_ok=True)
+    copy_yaml_template(output_dir, p4_source, table)
 
 
 if __name__ == "__main__":
