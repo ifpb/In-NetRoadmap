@@ -4,11 +4,11 @@ import os
 import click
 
 from inetrm import core
-from inetrm.module_a import a_logic as a
-from inetrm.module_b.generate_p4 import generate_p4
-from inetrm.module_b.generate_tables import generate_tables
-from inetrm.module_b.read_tree import exportar_regras_modelo
-from inetrm.module_c.copy_template import copy_yaml_template
+from inetrm.training import a_logic as a
+from inetrm.conversion.generate_p4 import generate_p4
+from inetrm.conversion.generate_tables import generate_tables
+from inetrm.conversion.read_tree import exportar_regras_modelo
+from inetrm.provisioning.copy_template import copy_yaml_template
 
 
 @click.group()
@@ -58,7 +58,7 @@ def train(ctx, output_dir, data):
 )
 @click.argument("model-file", type=click.Path(exists=True))
 @click.pass_context
-def create_p4(ctx, output_dir, model_file):
+def convert(ctx, output_dir, model_file):
     cfg = ctx.obj.get("config", {})
 
     out_dir = Path(output_dir)
@@ -103,7 +103,7 @@ def create_p4(ctx, output_dir, model_file):
 @click.argument("p4-source", type=click.Path(exists=True))
 @click.argument("table", type=click.Path(exists=True))
 @click.pass_context
-def build(ctx, output_dir, p4_source, table):
+def provision(ctx, output_dir, p4_source, table):
     os.makedirs(output_dir + "/ansible", exist_ok=True)
     copy_yaml_template(output_dir, p4_source, table)
 

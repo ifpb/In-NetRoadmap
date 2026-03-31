@@ -1,4 +1,4 @@
-from inetrm.module_b.datatypes import get_datatype, get_source_from_type, translate_name
+from .datatypes import get_datatype, get_source_from_type, translate_name
 
 
 def generate_match_action(feature, index):
