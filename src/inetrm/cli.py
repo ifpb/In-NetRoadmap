@@ -22,7 +22,11 @@ from inetrm.provisioning.copy_template import copy_yaml_template
 def main(ctx, config):
     ctx.ensure_object(dict)
 
-    ctx.obj["config"] = core.load_config(config)
+    try:
+        ctx.obj["config"] = core.load_config(config)
+    except (FileNotFoundError, ValueError) as e:
+        click.secho(str(e), fg="red", err=True)
+        raise click.Abort()
 
 
 @main.command()
@@ -37,16 +41,16 @@ def main(ctx, config):
 def train(ctx, output_dir, data):
     cfg = ctx.obj.get("config", {})
 
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    click.secho("Validating configuration and generating notebook...", fg="cyan")
 
-    a.validate_model(cfg)
-    a.validate_data(cfg, data)
+    try:
+        notebook_path = core.run_train(cfg, data, output_dir)
+        click.secho(f"Notebook created at: {notebook_path}", fg="green")
 
-    click.echo("Generating notebook...")
-    notebook_path = a.create_notebook(cfg, data, output_dir)
-    click.echo(click.style(f"Notebook created at: {notebook_path}", fg="green"))
-
-    a.initiate_jupyter(notebook_path)
+        a.initiate_jupyter(notebook_path)
+    except Exception as e:
+        click.secho(f"Training generation failed: {e}", fg="red", err=True)
+        raise click.Abort()
 
 
 @main.command()
@@ -61,36 +65,15 @@ def train(ctx, output_dir, data):
 def convert(ctx, output_dir, model_file):
     cfg = ctx.obj.get("config", {})
 
-    out_dir = Path(output_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    click.secho("Generating P4 source code and table entries...", fg="cyan")
 
-    p4_output_path = str(out_dir / "decision_tree.p4")
-    table_output_path = str(out_dir / "table.txt")
-
-    with open(model_file, "rb") as f:
-        model = pickle.load(f)
-
-    features_list = cfg["ml"]["features"]
-
-    res = exportar_regras_modelo(model, features_list)
-
-    regras_list = res.pop("regras")
-    features_thresholds = res
-
-    click.secho("Generating P4 source code...", fg="green")
-
-    generate_p4(
-        features_list,
-        p4_output_path,
-    )
-
-    click.secho("Generating table entries...", fg="green")
-
-    generate_tables(
-        regras_list,
-        features_thresholds,
-        table_output_path,
-    )
+    try:
+        paths = core.run_convert(cfg, model_file, output_dir)
+        click.secho(f"P4 source generated at: {paths['p4_path']}", fg="green")
+        click.secho(f"Table entries generated at: {paths['table_path']}", fg="green")
+    except Exception as e:
+        click.secho(f"Conversion failed: {e}", fg="red", err=True)
+        raise click.Abort()
 
 
 @main.command()
@@ -104,8 +87,14 @@ def convert(ctx, output_dir, model_file):
 @click.argument("table", type=click.Path(exists=True))
 @click.pass_context
 def provision(ctx, output_dir, p4_source, table):
-    os.makedirs(output_dir + "/ansible", exist_ok=True)
-    copy_yaml_template(output_dir, p4_source, table)
+    click.secho("Provisioning artifacts...", fg="cyan")
+
+    try:
+        core.run_provision(p4_source, table, output_dir)
+        click.secho("Provisioning successful.", fg="green")
+    except Exception as e:
+        click.secho(f"Provisioning failed: {e}", fg="red", err=True)
+        raise click.Abort()
 
 
 if __name__ == "__main__":

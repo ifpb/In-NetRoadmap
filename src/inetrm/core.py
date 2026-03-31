@@ -1,7 +1,13 @@
 from pathlib import Path
+import pickle
 import sys
-
 import tomli
+
+from inetrm.conversion.generate_p4 import generate_p4
+from inetrm.conversion.generate_tables import generate_tables
+from inetrm.conversion.read_tree import exportar_regras_modelo
+from inetrm.provisioning.copy_template import copy_yaml_template
+from inetrm.training import a_logic as a
 
 
 def load_config(config_path: str) -> dict:
@@ -16,3 +22,45 @@ def load_config(config_path: str) -> dict:
     except tomli.TOMLDecodeError as e:
         print(f"Error parsing TOML file: {e}")
         sys.exit(1)
+
+
+def run_train(cfg: dict, data_path: str, output_dir: str) -> str:
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    a.validate_model(cfg)
+    a.validate_data(cfg, data_path)
+
+    notebook_path = a.create_notebook(cfg, data_path, output_dir)
+    return notebook_path
+
+
+def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    p4_output_path = str(out_dir / "decision_tree.p4")
+    table_output_path = str(out_dir / "table.txt")
+
+    with open(model_file, "rb") as f:
+        model = pickle.load(f)
+
+    features_list = cfg["ml"]["features"]
+    res = exportar_regras_modelo(model, features_list)
+
+    regras_list = res.pop("regras")
+    features_thresholds = res
+
+    generate_p4(features_list, p4_output_path)
+    generate_tables(regras_list, features_thresholds, table_output_path)
+
+    return {
+        "p4_path": p4_output_path,
+        "table_path": table_output_path,
+    }
+
+
+def run_provision(p4_source: str, table: str, output_dir: str) -> None:
+    ansible_dir = Path(output_dir) / "ansible"
+    ansible_dir.mkdir(parents=True, exist_ok=True)
+
+    copy_yaml_template(output_dir, p4_source, table)
