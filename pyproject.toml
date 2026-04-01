@@ -24,6 +24,7 @@ dependencies = [
 	"scipy",
 	"jupyter",
 	"jinja2",
+	"ansible==2.9.0"
 ]
 
 [project.scripts]
