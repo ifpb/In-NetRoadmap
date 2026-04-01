@@ -1,6 +1,6 @@
 from pathlib import Path
 import pickle
-import sys
+import shutil
 import tomli
 
 from inetrm.conversion.generate_p4 import generate_p4
@@ -13,15 +13,35 @@ from inetrm.training import a_logic as a
 def load_config(config_path: str) -> dict:
     path = Path(config_path)
     if not path.is_file():
-        print(f"Error: Configure file '{config_path}' not found.")
-        sys.exit(1)
+        raise FileNotFoundError(f"Configuration file '{config_path}' not found.")
 
     try:
         with open(path, "rb") as f:
             return tomli.load(f)
     except tomli.TOMLDecodeError as e:
-        print(f"Error parsing TOML file: {e}")
-        sys.exit(1)
+        raise ValueError(f"Error parsing TOML file: {e}")
+
+
+def run_init(output_dir: str):
+    dest_dir = Path(output_dir)
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    dest_path = dest_dir / "config.toml"
+
+    if dest_path.exists():
+        raise FileExistsError(
+            f"A 'config.toml' already exists at: {dest_path.resolve()}"
+        )
+
+    source_path = Path(__file__).resolve().parent.parent.parent / "config.toml"
+
+    if not source_path.is_file():
+        raise FileNotFoundError(
+            "Default configuration template 'config.toml' not found in the package."
+        )
+
+    shutil.copy(source_path, dest_path)
+    return str(dest_path.resolve())
 
 
 def run_train(cfg: dict, data_path: str, output_dir: str) -> str:

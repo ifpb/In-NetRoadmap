@@ -15,17 +15,42 @@ from inetrm.provisioning.copy_template import copy_yaml_template
 @click.option(
     "--config",
     default="config.toml",
-    type=click.Path(exists=True),
+    type=click.Path(),
     help="Path to the TOML configuration file.",
 )
 @click.pass_context
 def main(ctx, config):
     ctx.ensure_object(dict)
 
+    if ctx.invoked_subcommand == "init":
+        return
+
     try:
         ctx.obj["config"] = core.load_config(config)
     except (FileNotFoundError, ValueError) as e:
         click.secho(str(e), fg="red", err=True)
+        raise click.Abort()
+
+
+@main.command()
+@click.option(
+    "--output-dir",
+    default=str(Path.cwd()),
+    type=click.Path(),
+    help="Path to the output dir for artifacts.",
+)
+def init(output_dir):
+    click.secho("Initializing default configuration...", fg="cyan")
+
+    try:
+        dest_path = core.run_init(output_dir)
+        click.secho(f"Success! Created configuration at: {dest_path}", fg="green")
+        click.secho(
+            "You can now edit this file and run your training commands.", dim=True
+        )
+
+    except Exception as e:
+        click.secho(f"Initialization skipped/failed: {e}", fg="yellow", err=True)
         raise click.Abort()
 
 
