@@ -5,9 +5,9 @@ import click
 
 from inetrm import core
 from inetrm.training import a_logic as a
-from inetrm.conversion.generate_p4 import generate_p4
-from inetrm.conversion.generate_tables import generate_tables
-from inetrm.conversion.read_tree import exportar_regras_modelo
+from inetrm.conversion.decision_tree.generate_p4 import generate_p4
+from inetrm.conversion.decision_tree.generate_tables import generate_tables
+from inetrm.conversion.decision_tree.read_tree import exportar_regras_modelo
 from inetrm.provisioning.copy_template import copy_yaml_template
 
 

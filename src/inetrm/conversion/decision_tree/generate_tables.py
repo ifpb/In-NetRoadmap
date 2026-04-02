@@ -1,6 +1,6 @@
 import re
 
-from .datatypes import get_datatype
+from conversion.datatypes import get_datatype
 
 
 def find_classification(regras_list: list[str], features: dict[str, list[int]]):

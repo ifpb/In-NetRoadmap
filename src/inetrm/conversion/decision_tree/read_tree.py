@@ -32,11 +32,6 @@ def exportar_regras_modelo(
         feature = features[modelo.tree_.feature[node]]
         threshold = modelo.tree_.threshold[node]
 
-        if feature == "ipi":
-            threshold = int(threshold)
-        else:
-            threshold = int(threshold)
-
         _add_value(res, feature, threshold)
 
         left_conditions = conditions + [f"{feature}<={threshold}"]

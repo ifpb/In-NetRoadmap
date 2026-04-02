@@ -3,9 +3,7 @@ import pickle
 import shutil
 import tomli
 
-from inetrm.conversion.generate_p4 import generate_p4
-from inetrm.conversion.generate_tables import generate_tables
-from inetrm.conversion.read_tree import exportar_regras_modelo
+from inetrm.conversion import convert
 from inetrm.provisioning.copy_template import copy_yaml_template
 from inetrm.training import a_logic as a
 
@@ -58,20 +56,14 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    p4_output_path = str(out_dir / "decision_tree.p4")
+    model_type = cfg.get("ml", {}).get("model_type")
+    p4_output_path = str(out_dir / f"{model_type}.p4")
     table_output_path = str(out_dir / "table.txt")
 
     with open(model_file, "rb") as f:
         model = pickle.load(f)
 
-    features_list = cfg["ml"]["features"]
-    res = exportar_regras_modelo(model, features_list)
-
-    regras_list = res.pop("regras")
-    features_thresholds = res
-
-    generate_p4(features_list, p4_output_path)
-    generate_tables(regras_list, features_thresholds, table_output_path)
+    convert(cfg, model, p4_output_path, table_output_path)
 
     return {
         "p4_path": p4_output_path,
