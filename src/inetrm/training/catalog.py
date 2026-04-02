@@ -1,6 +1,31 @@
 class Model:
     MODEL_CATALOG = {"decision_tree"}
-    FEATURE_CATALOG = {"sport", "dport"}
+    FEATURE_CATALOG = {
+        "sport",
+        "dport",
+        "tos",
+        "length",
+        "id",
+        "ttl",
+        "chksum",
+        "seq",
+        "ack",
+        "window",
+        "frame_size",
+        "ipi",
+        "flags",
+        "frag",
+        "ihl",
+        "proto",
+        "dataofs",
+        "urgptr",
+        "reserved",
+        "tcp_chk",
+        "urg",
+        "ece",
+        "cwr",
+        "payload_length",
+    }
     JUPYTER_MAPPING = {"decision_tree": "train_DT.ipynb"}
 
     def __init__(self, model: str, features: list):
