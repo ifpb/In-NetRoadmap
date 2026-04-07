@@ -4,3 +4,7 @@ features = [
   "sport",
   "dport",
 ]
+
+[ml.parameters]
+# Optional model parameters
+# max_depth = 10

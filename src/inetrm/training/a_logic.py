@@ -64,15 +64,17 @@ def create_notebook(cfg: dict, data: str, output_dir: str) -> str:
     out_dir = Path(output_dir).resolve()
     notebook_path = f"{out_dir}/{model_name}.ipynb"
     features_list = cfg["ml"]["features"]
+    model_parameters = cfg.get("ml", {}).get("parameters", {})
 
-    vars_code = "\n".join(
-        [
-            f"input_dataset = {repr(str(data_path))}",
-            f"output_dir = {repr(str(out_dir))}",
-            f"output_tree = {repr(str(out_dir / '/tree.txt'))}",
-            f"features = {repr(features_list)}",
-        ]
-    )
+    code_lines = [
+        f"input_dataset = {repr(str(data_path))}",
+        f"output_dir = {repr(str(out_dir))}",
+        f"output_tree = {repr(str(out_dir / '/tree.txt'))}",
+        f"features = {repr(features_list)}",
+        f"model_parameters = {repr(model_parameters)}",
+    ]
+
+    vars_code = "\n".join(code_lines)
 
     md_cell = new_markdown_cell("# Variáveis")
     code_cell = new_code_cell(vars_code)
