@@ -1,5 +1,7 @@
 class Model:
-    MODEL_CATALOG = {"decision_tree"}
+    MODEL_CATALOG = {"decision_tree",
+                     "naive_bayes",
+                     }
     FEATURE_CATALOG = {
         "sport",
         "dport",
@@ -26,7 +28,9 @@ class Model:
         "cwr",
         "payload_length",
     }
-    JUPYTER_MAPPING = {"decision_tree": "train_DT.ipynb"}
+    JUPYTER_MAPPING = {"decision_tree": "train_DT.ipynb",
+                       "naive_bayes": "train_NB.ipynb",
+                       }
 
     def __init__(self, model: str, features: list):
         if model not in self.MODEL_CATALOG:

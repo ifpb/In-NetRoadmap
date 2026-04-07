@@ -1,8 +1,10 @@
 [ml]
-model = "decision_tree"
+model = "naive_bayes"
 features = [
-  "sport",
-  "dport",
+  "tos",
+  "window",
+  "frame_size",
+  "ipi",
 ]
 
 [ml.parameters]
