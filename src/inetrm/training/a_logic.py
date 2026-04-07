@@ -69,7 +69,6 @@ def create_notebook(cfg: dict, data: str, output_dir: str) -> str:
     code_lines = [
         f"input_dataset = {repr(str(data_path))}",
         f"output_dir = {repr(str(out_dir))}",
-        f"output_tree = {repr(str(out_dir / '/tree.txt'))}",
         f"features = {repr(features_list)}",
         f"model_parameters = {repr(model_parameters)}",
     ]
