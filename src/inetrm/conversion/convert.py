@@ -1,4 +1,4 @@
-from decision_tree import convert_decision_tree
+from .decision_tree import convert_decision_tree
 
 
 def convert(cfg: dict, model, p4_output_path: str, table_output_path: str):
