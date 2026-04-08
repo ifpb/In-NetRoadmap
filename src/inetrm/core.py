@@ -56,7 +56,7 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    model_type = cfg.get("ml", {}).get("model_type")
+    model_type = cfg.get("ml", {}).get("model")
     p4_output_path = str(out_dir / f"{model_type}.p4")
     table_output_path = str(out_dir / "table.txt")
 
