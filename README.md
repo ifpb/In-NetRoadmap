@@ -13,3 +13,8 @@ git clone https://github.com/ifpb/in-netroadmap
 cd in-netroadmap
 pip install -e .
 ```
+
+## Using the Framework.
+The framework's default workflow consists of using its 3 modules in order. The first module takes a CSV with training data and runs a python notebook for you to train the model. The second module requires the trained model to map it into P4 code. The third module uses the generated P4 code to provision an experimental environment for the researcher to test its trained model in an emulated network infrastructure. All modules have configurable parameters in config.toml. The following image visually describes the workflow.
+
+![inetrm visually explained](assets/framework.png)
