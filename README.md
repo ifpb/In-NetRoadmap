@@ -40,3 +40,7 @@ inetrm convert [OPTIONS] MODEL_FILE
 inetrm provision [OPTIONS] P4_SOURCE TABLE
 # Compiles the P4 code into a bmv2 switch, fills its tables with the generated table entries and provisions a virtual experimental environment for the researcher to test the trained model.
 ```
+
+Current global options are:
+- `--output-dir` - Target directory used to run the modules in
+- `--help` - Help menu for desired inetrm module
