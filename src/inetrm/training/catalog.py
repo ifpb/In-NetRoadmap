@@ -1,7 +1,9 @@
 class Model:
-    MODEL_CATALOG = {"decision_tree",
-                     "naive_bayes",
-                     }
+    MODEL_CATALOG = {
+        "decision_tree",
+        "naive_bayes",
+        "random_forest",
+    }
     FEATURE_CATALOG = {
         "sport",
         "dport",
@@ -28,9 +30,11 @@ class Model:
         "cwr",
         "payload_length",
     }
-    JUPYTER_MAPPING = {"decision_tree": "train_DT.ipynb",
-                       "naive_bayes": "train_NB.ipynb",
-                       }
+    JUPYTER_MAPPING = {
+        "decision_tree": "train_DT.ipynb",
+        "naive_bayes": "train_NB.ipynb",
+        "random_forest": "train_RF.ipynb",
+    }
 
     def __init__(self, model: str, features: list):
         if model not in self.MODEL_CATALOG:
