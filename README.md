@@ -66,9 +66,9 @@ features = [
   "ipi",
 ]
 
-[ml.parameters]
 # Optional model parameters
-# max_depth = 10
+[ml.parameters]
+max_depth = 10
 ```
 
 ### Configuration Parameters

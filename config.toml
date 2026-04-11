@@ -1,12 +1,7 @@
 [ml]
-model = "naive_bayes"
-features = [
-  "tos",
-  "window",
-  "frame_size",
-  "ipi",
-]
+model = "decision_tree"
+features = ["tos", "window", "frame_size", "ipi"]
 
-[ml.parameters]
 # Optional model parameters
-# max_depth = 10
+[ml.parameters]
+max_depth = 10
