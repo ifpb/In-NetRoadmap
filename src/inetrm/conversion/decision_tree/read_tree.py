@@ -30,7 +30,7 @@ def exportar_regras_modelo(
             return
 
         feature = features[modelo.tree_.feature[node]]
-        threshold = modelo.tree_.threshold[node]
+        threshold = int(modelo.tree_.threshold[node])
 
         _add_value(res, feature, threshold)
 
