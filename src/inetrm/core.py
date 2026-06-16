@@ -4,7 +4,7 @@ import shutil
 import tomli
 
 from inetrm.conversion import convert
-from inetrm.provisioning.copy_template import copy_yaml_template
+# from inetrm.provisioning.copy_template import copy_yaml_template
 from inetrm.training import a_logic as a
 
 
@@ -72,7 +72,4 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
 
 
 def run_provision(p4_source: str, table: str, output_dir: str) -> None:
-    ansible_dir = Path(output_dir) / "ansible"
-    ansible_dir.mkdir(parents=True, exist_ok=True)
-
-    copy_yaml_template(output_dir, p4_source, table)
+    ...

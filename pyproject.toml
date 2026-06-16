@@ -11,7 +11,7 @@ authors = [
 	{ name = "Caio Luiz Lacerda Terto Silva", email = "caio.luiz@academico.ifpb.edu.br" },
 ]
 readme = "README.md"
-requires-python = ">=3.9, <3.10"
+requires-python = ">=3.9"
 
 dependencies = [
 	"click",
@@ -24,7 +24,6 @@ dependencies = [
 	"scipy",
 	"jupyter",
 	"jinja2",
-	"ansible==2.9.0"
 ]
 
 [project.scripts]

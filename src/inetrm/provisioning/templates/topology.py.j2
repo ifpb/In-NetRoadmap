@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+import os
+import argparse
+from time import sleep
+from mininet.net import Containernet
+from mininet.node import Controller, OVSSwitch
+from mininet.cli import CLI
+from mininet.log import setLogLevel, info
+
+def create_nodes(net):
+    info('*** Adding Switch\n')
+    s1 = net.addSwitch('s1', cls=OVSSwitch)
+
+    info('*** Adding Docker Containers\n')
+    
+    {% for node in nodes %}
+    {{ node }}
+    {% endfor %}
+
+    return {{ node_names }}
+
+def create_links(net, nodes):
+    info('*** Linking topology\n')
+    for node in nodes:
+        net.addLink(node, switch)
+
+def run_monitoring_scripts(nodes_dict, duration):
+    info(f'*** Starting metrics collection for {duration} seconds...\n')
+    
+    srv_a = nodes_dict['srv_a']
+    srv_b = nodes_dict['srv_b']
+    client = nodes_dict['client']
+
+    srv_a.cmd(f"SRV=srv_a bash /scripts/m-server.sh {duration} &")
+    srv_b.cmd(f"SRV=srv_b bash /scripts/m-server.sh {duration} &")
+
+    client.cmd(f"bash /scripts/m-client.sh {duration} 10.0.0.21 &")
+    client.cmd(f"bash /scripts/m-client.sh {duration} 10.0.0.22 &")
+    
+    info('*** Monitoring scripts are running in background.\n')
+
+def main():
+    args = parse_arguments()
+    duration = args.time
+
+    net = Containernet(controller=Controller)
+
+    info('*** Adding Controller\n')
+    net.addController('c0')
+
+    {{ node_names }} = create_nodes(net)
+    nodes_dict = {{ nodes_dict }}
+    create_links(net, nodes_dict)
+
+    info('*** Starting the network\n')
+    net.start()    
+
+    # run_monitoring_scripts(nodes_dict, duration)
+
+    info('*** Starting Mininet CLI\n')
+    CLI(net)
+
+    info('*** Stopping the network\n')
+    net.stop()
+
+if __name__ == '__main__':
+    setLogLevel('info')
+    main()
