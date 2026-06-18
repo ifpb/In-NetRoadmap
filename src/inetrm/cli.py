@@ -27,7 +27,7 @@ def main(ctx, config):
     try:
         if config == None:
             root_path = core.get_root()
-            config_path = root / "config.toml"
+            config_path = root_path / "config.toml"
         else:
             config_path = Path(config)
 
@@ -46,8 +46,23 @@ def main(ctx, config):
     type=click.Path(),
     help="Path to the output dir for artifacts.",
 )
-def init(output_dir):
+@click.option(
+    "--verify",
+    is_flag=True,
+    default=False,
+    help="Verifies if current directory is part of an inetrm project."
+)
+def init(output_dir, verify):
     click.secho("Initializing default configuration...", fg="cyan")
+
+    if verify:
+        try:
+            project_root = core.get_root()
+            click.secho(f"Project root found at {project_root}")
+        except:
+            click.secho("Project root not found.",err=True)
+        finally:
+            raise click.Abort()
 
     try:
         dest_path = core.run_init(output_dir)

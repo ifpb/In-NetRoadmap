@@ -14,7 +14,7 @@ def get_root(start_path: str | Path = None, marker: str = ".inetrm"):
         return current_path
     if (current_path == current_path.parent):
         raise FileNotFoundError (
-                f"Direcotry is not part of an inetrm project"
+                f"Directory is not part of an inetrm project"
     )
     
     return get_root(current_path.parent)
