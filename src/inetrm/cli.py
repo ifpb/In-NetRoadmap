@@ -8,13 +8,12 @@ from inetrm.training import a_logic as a
 from inetrm.conversion.decision_tree.generate_p4 import generate_p4
 from inetrm.conversion.decision_tree.generate_tables import generate_tables
 from inetrm.conversion.decision_tree.read_tree import exportar_regras_modelo
-from inetrm.provisioning.copy_template import copy_yaml_template
-
+# from inetrm.provisioning.copy_template import copy_yaml_template
 
 @click.group()
 @click.option(
     "--config",
-    default="config.toml",
+    default=None,
     type=click.Path(),
     help="Path to the TOML configuration file.",
 )
@@ -26,7 +25,15 @@ def main(ctx, config):
         return
 
     try:
-        ctx.obj["config"] = core.load_config(config)
+        if config == None:
+            root_path = core.get_root()
+            config_path = root / "config.toml"
+        else:
+            config_path = Path(config)
+
+        ctx.obj["root_path"] = root_path
+        ctx.obj["config"] = core.load_config(str(config_path))
+
     except (FileNotFoundError, ValueError) as e:
         click.secho(str(e), fg="red", err=True)
         raise click.Abort()
@@ -44,9 +51,9 @@ def init(output_dir):
 
     try:
         dest_path = core.run_init(output_dir)
-        click.secho(f"Success! Created configuration at: {dest_path}", fg="green")
+        click.secho(f"Success! INETRM project initiated at: {dest_path}", fg="green")
         click.secho(
-            "You can now edit this file and run your training commands.", dim=True
+            "You can now edit the configuration file and proceed with development.", dim=True
         )
 
     except Exception as e:

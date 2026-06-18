@@ -8,6 +8,17 @@ from inetrm.conversion import convert
 from inetrm.training import a_logic as a
 
 
+def get_root(start_path: str | Path = None, marker: str = ".inetrm"):
+    current_path = Path(start_path or Path.cwd()).resolve()
+    if (current_path / marker).exists():
+        return current_path
+    if (current_path == current_path.parent):
+        raise FileNotFoundError (
+                f"Direcotry is not part of an inetrm project"
+    )
+    
+    return get_root(current_path.parent)
+
 def load_config(config_path: str) -> dict:
     path = Path(config_path)
     if not path.is_file():
@@ -21,24 +32,23 @@ def load_config(config_path: str) -> dict:
 
 
 def run_init(output_dir: str):
-    dest_dir = Path(output_dir)
-    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest_path = Path(output_dir)
+    dest_path.mkdir(parents=True, exist_ok=True)
 
-    dest_path = dest_dir / "config.toml"
-
-    if dest_path.exists():
+    if (dest_path / '.inetrm').exists():
         raise FileExistsError(
-            f"A 'config.toml' already exists at: {dest_path.resolve()}"
+            f"{dest_path.resolve()} is already an INETRM project."
         )
 
-    source_path = Path(__file__).resolve().parent.parent.parent / "config.toml"
+    (dest_path / '.inetrm').mkdir(parents=True, exist_ok=True)
+    source_path = (Path(__file__).parent / 'init').resolve()
 
-    if not source_path.is_file():
+    if not (source_path / 'config.toml').is_file():
         raise FileNotFoundError(
-            "Default configuration template 'config.toml' not found in the package."
+            "Default configuration template 'config.toml' not found in package."
         )
 
-    shutil.copy(source_path, dest_path)
+    shutil.copytree(source_path, dest_path, dirs_exist_ok=True)
     return str(dest_path.resolve())
 
 
