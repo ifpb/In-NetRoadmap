@@ -25,8 +25,8 @@ def main(ctx, config):
         return
 
     try:
+        root_path = core.get_root()
         if config == None:
-            root_path = core.get_root()
             config_path = root_path / "config.toml"
         else:
             config_path = Path(config)
@@ -125,22 +125,17 @@ def convert(ctx, output_dir, model_file):
 
 @main.command()
 @click.option(
-    "--output-dir",
-    default=str(Path.cwd()),
-    type=click.Path(),
-    help="Path to the output dir for artifacts.",
+    "--generate",
+    is_flag=True,
+    default=False,
+    help="Generates a containernet topology file from the config file."
 )
-@click.argument("p4-source", type=click.Path(exists=True))
-@click.argument("table", type=click.Path(exists=True))
 @click.pass_context
-def provision(ctx, output_dir, p4_source, table):
-    click.secho("Provisioning artifacts...", fg="cyan")
-
+def provision(ctx, generate):
     try:
-        core.run_provision(p4_source, table, output_dir)
-        click.secho("Provisioning successful.", fg="green")
+        core.run_provision(ctx.obj['config'], generate)
     except Exception as e:
-        click.secho(f"Provisioning failed: {e}", fg="red", err=True)
+        click.secho(f"Provision failure: {e}", fg="red", err=True)
         raise click.Abort()
 
 

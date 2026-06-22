@@ -4,7 +4,7 @@ import shutil
 import tomli
 
 from inetrm.conversion import convert
-# from inetrm.provisioning.copy_template import copy_yaml_template
+from inetrm.provision.provision_logic import generate, provision
 from inetrm.training import a_logic as a
 
 
@@ -81,5 +81,7 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
     }
 
 
-def run_provision(p4_source: str, table: str, output_dir: str) -> None:
-    ...
+def run_provision(cfg, is_generate) -> None:
+    if is_generate:
+        generate(cfg, get_root() / "topology.py")
+        return

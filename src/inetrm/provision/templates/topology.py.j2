@@ -8,36 +8,33 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 
 def create_nodes(net):
-    info('*** Adding Switch\n')
-    s1 = net.addSwitch('s1', cls=OVSSwitch)
+    nodes_dict = {}
 
-    info('*** Adding Docker Containers\n')
+    info('*** Adding Network Nodes (Switches and Docker Containers)\n')
     
     {% for node in nodes %}
-    {{ node }}
+    {% if node.type == 'switch' %}
+    nodes_dict['{{ node.name }}'] = net.addSwitch('{{ node.name }}', cls=OVSSwitch)
+    {% elif node.type == 'docker' %}
+    nodes_dict['{{ node.name }}'] = net.addDocker('{{ node.name }}', dimage='inetrm-{{ node.dimage }}', ip='{{ node.ip }}', network_mode='none', volumes=["/tmp:/tmp"])
+    {% endif %}
     {% endfor %}
 
-    return {{ node_names }}
+    return nodes_dict
 
-def create_links(net, nodes):
+def create_links(net, nodes_dict):
     info('*** Linking topology\n')
-    for node in nodes:
-        net.addLink(node, switch)
+    {% for link in links %}
+    net.addLink(nodes_dict['{{ link[0] }}'], nodes_dict['{{ link[1] }}'])
+    {% endfor %}
 
 def run_monitoring_scripts(nodes_dict, duration):
-    info(f'*** Starting metrics collection for {duration} seconds...\n')
-    
-    srv_a = nodes_dict['srv_a']
-    srv_b = nodes_dict['srv_b']
-    client = nodes_dict['client']
+    ...
 
-    srv_a.cmd(f"SRV=srv_a bash /scripts/m-server.sh {duration} &")
-    srv_b.cmd(f"SRV=srv_b bash /scripts/m-server.sh {duration} &")
-
-    client.cmd(f"bash /scripts/m-client.sh {duration} 10.0.0.21 &")
-    client.cmd(f"bash /scripts/m-client.sh {duration} 10.0.0.22 &")
-    
-    info('*** Monitoring scripts are running in background.\n')
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Containernet Topology")
+    parser.add_argument('--time', type=int, default=60, help="Duration of monitoring")
+    return parser.parse_args()
 
 def main():
     args = parse_arguments()
@@ -48,8 +45,8 @@ def main():
     info('*** Adding Controller\n')
     net.addController('c0')
 
-    {{ node_names }} = create_nodes(net)
-    nodes_dict = {{ nodes_dict }}
+    nodes_dict = create_nodes(net)
+    
     create_links(net, nodes_dict)
 
     info('*** Starting the network\n')
