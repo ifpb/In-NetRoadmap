@@ -5,6 +5,7 @@ import tomli
 
 from inetrm.conversion import convert
 from inetrm.training import a_logic as a
+from inetrm.provision import provision_logic as c
 
 
 def get_root(start_path: str | Path = None, marker: str = ".inetrm"):
@@ -79,8 +80,14 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
         "table_path": table_output_path,
     }
 
-def run_provision(cfg, is_generate) -> None:
+def run_provision(cfg, chain, time=60) -> None:
     p4_dir = (Path(get_root()) / "p4").resolve()
-    # Path("/tmp/compile").mkdir(parents=True, exist_ok=True)
     print(p4_dir)
     shutil.copytree(p4_dir, "/tmp/compile", dirs_exist_ok=True)
+
+    if not chain: return
+
+    c.generate(cfg, get_root() / "containernet" / "topology.py")
+    c.build(get_root())
+    params = c.get_params(get_root())
+    c.up(params, time)

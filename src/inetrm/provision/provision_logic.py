@@ -97,10 +97,16 @@ def build(root):
     for t in threads:
         t.join()
 
-def up(params: dict):
+def up(params: dict, duration: int = 60):
     """Unpacks the configuration dictionary to run the container."""
     if not params:
         raise Exception("Parameters are empty")
-
+    
+    print("Provisioning topology...")
     client = docker.from_env()
     container = client.containers.run(**params)
+    container.exec_run("bash -c 'openvswitch-switch start'")
+    print(f"Will be up for {duration} seconds.")
+    exit_code, output = container.exec_run(f"bash -c 'python3 /scripts/topology.py -t {duration}'")
+    print(f"Containernet status: {exit_code}, {output}")
+    print("Provision successful")

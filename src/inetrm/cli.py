@@ -124,11 +124,19 @@ def convert(ctx, output_dir, model_file):
         raise click.Abort()
 
 
-@main.group()
+@main.group(invoke_without_command=True)
+@click.option(
+    "-t",
+    "--time",
+    type=int,
+    default=60,
+    help="Provision duration"
+)
 @click.pass_context
-def provision(ctx):
+def provision(ctx, time):
     try:
-        core.run_provision(ctx.obj['config'], generate)
+        chain = True if ctx.invoked_subcommand is None else False
+        core.run_provision(ctx.obj['config'], chain, time)
     except Exception as e:
         click.secho(f"Provision failure: {e}", fg="red", err=True)
         raise click.Abort()
@@ -139,7 +147,7 @@ def generate(ctx):
     try:
         c.generate(ctx.obj['config'], core.get_root() / "containernet" / "topology.py")
     except Exception as e:
-        click.secho("Provision module failure: {e}", fg="red", err=True)
+        click.secho(f"Provision module failure: {e}", fg="red", err=True)
         raise click.Abort()
 
 @provision.command()
@@ -148,17 +156,24 @@ def build(ctx):
     try:
         c.build(core.get_root())
     except Exception as e:
-        click.secho("Provision module failure: {e}", fg="red", err=True)
+        click.secho(f"Provision module failure: {e}", fg="red", err=True)
         raise click.Abort()
 
 @provision.command()
+@click.option(
+    "-t",
+    "--time",
+    type=int,
+    default=60,
+    help="Provision duration"
+)
 @click.pass_context
-def up(ctx):
+def up(ctx, time):
     try:
         params = c.get_params(core.get_root())
-        c.up(params)
+        c.up(params, time)
     except Exception as e:
-        click.secho("Provision module failure: {e}", fg="red", err=True)
+        click.secho(f"Provision module failure: {e}", fg="red", err=True)
         raise click.Abort()
 
 if __name__ == "__main__":
