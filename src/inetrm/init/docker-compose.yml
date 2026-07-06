@@ -35,12 +35,13 @@ services:
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${PWD}/containernet:/containernet
+      - /tmp:/tmp
+      - ${PWD}/containernet:/scripts
 
     environment:
       - PYTHONUNBUFFERED=1
 
-    working_dir: /containernet
+    working_dir: /scripts
 
     entrypoint: /bin/bash
 

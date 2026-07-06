@@ -8,6 +8,7 @@ from inetrm.training import a_logic as a
 from inetrm.conversion.decision_tree.generate_p4 import generate_p4
 from inetrm.conversion.decision_tree.generate_tables import generate_tables
 from inetrm.conversion.decision_tree.read_tree import exportar_regras_modelo
+from inetrm.provision import provision_logic as c
 # from inetrm.provisioning.copy_template import copy_yaml_template
 
 @click.group()
@@ -123,21 +124,23 @@ def convert(ctx, output_dir, model_file):
         raise click.Abort()
 
 
-@main.command()
-@click.option(
-    "--generate",
-    is_flag=True,
-    default=False,
-    help="Generates a containernet topology file from the config file."
-)
+@main.group()
 @click.pass_context
-def provision(ctx, generate):
+def provision(ctx):
     try:
         core.run_provision(ctx.obj['config'], generate)
     except Exception as e:
         click.secho(f"Provision failure: {e}", fg="red", err=True)
         raise click.Abort()
 
+@provision.command()
+@click.pass_context
+def generate(ctx):
+    try:
+        c.generate(ctx.obj['config'], core.get_root() / "containernet" / "topology.py")
+    except Exception as e:
+        click.secho("Provision module failure: {e}", fg="red", err=True)
+        raise click.Abort()
 
 if __name__ == "__main__":
     main()

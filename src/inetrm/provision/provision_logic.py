@@ -2,7 +2,8 @@ from pathlib import Path
 from ..renderer import render_template
 
 def generate(cfg, output_path):
-    context = cfg["provision"]
+    # context = cfg["provision"]
+    context = cfg.get("provision", {})
 
     template_dir = (Path(__file__).parent / "templates").resolve()
     template_file = "topology.py.j2"

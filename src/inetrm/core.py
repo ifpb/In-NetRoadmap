@@ -82,6 +82,7 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
 
 
 def run_provision(cfg, is_generate) -> None:
-    if is_generate:
-        generate(cfg, get_root() / "topology.py")
-        return
+    p4_dir = (Path(get_root()) / "p4").resolve()
+    # Path("/tmp/compile").mkdir(parents=True, exist_ok=True)
+    print(p4_dir)
+    shutil.copytree(p4_dir, "/tmp/compile", dirs_exist_ok=True)
