@@ -1,6 +1,7 @@
 from pathlib import Path
 from ..renderer import render_template
 import docker
+import threading
 
 def get_params(root):
     client = docker.from_env()
@@ -58,27 +59,43 @@ def generate(cfg, output_path):
 
     render_template(str(template_dir), template_file, context, str(output_path))
 
+def _build_iteration(client: docker.DockerClient, subdir: Path):
+    """Worker function executed by each thread to build an individual image."""
+    dockerfile_path = subdir / "Dockerfile"
+
+    if dockerfile_path.exists():
+        image_name = subdir.name
+        tag_name = f"inetrm-{image_name}"
+
+        print(f"Building image {tag_name}...")
+        try:
+            client.images.build(
+                path=str(subdir.resolve()), tag=tag_name, rm=True
+            )
+            print(f"Successfully built {tag_name}")
+        except Exception as e:
+            print(f"Failed to build {tag_name}: {e}")
+
 def build(root):
     client = docker.from_env()
 
     images_path = Path(root) / "images"
-    if not images_path.exists() or not images_path.is_dir(): raise FileNotFoundError("Images directory is missing")
+    if not images_path.exists() or not images_path.is_dir():
+        raise FileNotFoundError("Images directory is missing")
+
+    threads = []
 
     for subdir in images_path.iterdir():
         if subdir.is_dir():
-            dockerfile_path = subdir / "Dockerfile"
-            
-            if dockerfile_path.exists():
-                image_name = subdir.name
-                tag_name = f"inetrm-{image_name}"
+            # Passamos o cliente e o caminho do subdiretório como argumentos para a thread
+            t = threading.Thread(
+                target=_build_iteration, args=(client, subdir)
+            )
+            threads.append(t)
+            t.start()
 
-                print(f"Building image {tag_name}...")
-                client.images.build(
-                    path=str(subdir.resolve()),
-                    tag=tag_name,
-                    rm=True
-                )
-    
+    for t in threads:
+        t.join()
 
 def up(params: dict):
     """Unpacks the configuration dictionary to run the container."""
