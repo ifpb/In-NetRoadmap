@@ -4,7 +4,6 @@ import shutil
 import tomli
 
 from inetrm.conversion import convert
-from inetrm.provision.provision_logic import generate, provision
 from inetrm.training import a_logic as a
 
 
@@ -79,7 +78,6 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
         "p4_path": p4_output_path,
         "table_path": table_output_path,
     }
-
 
 def run_provision(cfg, is_generate) -> None:
     p4_dir = (Path(get_root()) / "p4").resolve()

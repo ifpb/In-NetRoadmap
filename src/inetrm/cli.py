@@ -142,5 +142,24 @@ def generate(ctx):
         click.secho("Provision module failure: {e}", fg="red", err=True)
         raise click.Abort()
 
+@provision.command()
+@click.pass_context
+def build(ctx):
+    try:
+        c.build(core.get_root())
+    except Exception as e:
+        click.secho("Provision module failure: {e}", fg="red", err=True)
+        raise click.Abort()
+
+@provision.command()
+@click.pass_context
+def up(ctx):
+    try:
+        params = c.get_params(core.get_root())
+        c.up(params)
+    except Exception as e:
+        click.secho("Provision module failure: {e}", fg="red", err=True)
+        raise click.Abort()
+
 if __name__ == "__main__":
     main()
