@@ -4,9 +4,20 @@ import shutil
 import tomli
 
 from inetrm.conversion import convert
-from inetrm.provisioning.copy_template import copy_yaml_template
 from inetrm.training import a_logic as a
+from inetrm.provision import provision_logic as c
 
+
+def get_root(start_path: str | Path = None, marker: str = ".inetrm"):
+    current_path = Path(start_path or Path.cwd()).resolve()
+    if (current_path / marker).exists():
+        return current_path
+    if (current_path == current_path.parent):
+        raise FileNotFoundError (
+                f"Directory is not part of an inetrm project"
+    )
+    
+    return get_root(current_path.parent)
 
 def load_config(config_path: str) -> dict:
     path = Path(config_path)
@@ -21,24 +32,23 @@ def load_config(config_path: str) -> dict:
 
 
 def run_init(output_dir: str):
-    dest_dir = Path(output_dir)
-    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest_path = Path(output_dir)
+    dest_path.mkdir(parents=True, exist_ok=True)
 
-    dest_path = dest_dir / "config.toml"
-
-    if dest_path.exists():
+    if (dest_path / '.inetrm').exists():
         raise FileExistsError(
-            f"A 'config.toml' already exists at: {dest_path.resolve()}"
+            f"{dest_path.resolve()} is already an INETRM project."
         )
 
-    source_path = Path(__file__).resolve().parent.parent.parent / "config.toml"
+    (dest_path / '.inetrm').mkdir(parents=True, exist_ok=True)
+    source_path = (Path(__file__).parent / 'init').resolve()
 
-    if not source_path.is_file():
+    if not (source_path / 'config.toml').is_file():
         raise FileNotFoundError(
-            "Default configuration template 'config.toml' not found in the package."
+            "Default configuration template 'config.toml' not found in package."
         )
 
-    shutil.copy(source_path, dest_path)
+    shutil.copytree(source_path, dest_path, dirs_exist_ok=True)
     return str(dest_path.resolve())
 
 
@@ -70,9 +80,14 @@ def run_convert(cfg: dict, model_file: str, output_dir: str) -> dict:
         "table_path": table_output_path,
     }
 
+def run_provision(cfg, chain, time=60) -> None:
+    p4_dir = (Path(get_root()) / "p4").resolve()
+    print(p4_dir)
+    shutil.copytree(p4_dir, "/tmp/compile", dirs_exist_ok=True)
 
-def run_provision(p4_source: str, table: str, output_dir: str) -> None:
-    ansible_dir = Path(output_dir) / "ansible"
-    ansible_dir.mkdir(parents=True, exist_ok=True)
+    if not chain: return
 
-    copy_yaml_template(output_dir, p4_source, table)
+    c.generate(cfg, get_root() / "containernet" / "topology.py")
+    c.build(get_root())
+    params = c.get_params(get_root())
+    c.up(params, time)

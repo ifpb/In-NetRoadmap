@@ -1,7 +1,0 @@
-[ml]
-model = "decision_tree"
-features = ["tos", "window", "frame_size", "ipi"]
-
-# Optional model parameters
-[ml.parameters]
-max_depth = 10
