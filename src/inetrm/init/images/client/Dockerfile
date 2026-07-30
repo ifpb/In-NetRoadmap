@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     vlc \
     iperf3 \
+    tcpdump \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
