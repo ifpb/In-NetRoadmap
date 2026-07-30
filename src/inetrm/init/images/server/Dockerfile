@@ -19,6 +19,11 @@ RUN mkdir -p /scripts
 COPY m-system.sh /scripts/m-system.sh
 COPY system /scripts/system
 
+COPY vsftpd.conf /etc/vsftpd.conf
+RUN mkdir -p /ftp
+WORKDIR /ftp
+RUN curl -o JihanGrandTheater.jpg https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Jinan_Grand_Theater-20150520-RM-170343.jpg/1920px-Jinan_Grand_Theater-20150520-RM-170343.jpg
+
 COPY nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /usr/share/nginx/html/videos
 WORKDIR /usr/share/nginx/html/videos
