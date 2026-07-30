@@ -16,8 +16,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
-RUN mkdir -p /scripts
-COPY m-system.sh /scripts/m-system.sh
-COPY system /scripts/system
+COPY scripts /scripts
 
 CMD /bin/bash

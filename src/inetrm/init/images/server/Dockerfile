@@ -15,9 +15,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /scripts
-COPY m-system.sh /scripts/m-system.sh
-COPY system /scripts/system
+COPY scripts /scripts
 
 COPY vsftpd.conf /etc/vsftpd.conf
 RUN mkdir -p /ftp
@@ -37,4 +35,3 @@ RUN ffmpeg -i BigBuckBunny.mp4 -map 0 -map 0 -c:a aac -c:v libx264 -b:v:0 800k -
 EXPOSE 80 5000
 
 CMD nginx -g 'daemon off;'
-
