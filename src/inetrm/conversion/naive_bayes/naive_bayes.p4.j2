@@ -193,7 +193,7 @@ control MyIngress(inout headers hdr,
     register<bit<48>>(0xffff) ipi_register;
     register<bit<48>>(0xffff) lpt_register;
 
-    counter(2, CounterType.packets) resultCounter;
+    counter({{ classes|length }}, CounterType.packets) resultCounter;
 
     action drop() {
         mark_to_drop(standard_metadata);
