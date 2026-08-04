@@ -1,5 +1,7 @@
 FROM nginx:latest
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -13,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     xmlstarlet \
     ffmpeg \
     unzip \
+    ethtool \
     && rm -rf /var/lib/apt/lists/*
 
 COPY scripts /scripts
