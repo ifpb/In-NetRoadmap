@@ -1,4 +1,6 @@
-from debian:trixie
+from debian:bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     python3 \
@@ -11,12 +13,12 @@ RUN apt-get update && apt-get install -y \
     curl \
     vlc \
     iperf3 \
+    tcpdump \
+    ethtool \
     && rm -rf /var/lib/apt/lists/*
 
 RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
-RUN mkdir -p /scripts
-COPY m-system.sh /scripts/m-system.sh
-COPY system /scripts/system
+COPY scripts /scripts
 
 CMD /bin/bash

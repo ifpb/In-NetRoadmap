@@ -5,9 +5,10 @@ from ..renderer import render_template
 
 
 def generate_p4(n_classes: int, features: list, output_path: str) -> None:
-    raise NotImplementedError("TODO generate p4 for naive bayes")
+    # O template Jinja2 espera uma lista de identificadores de classes (ex: [0, 1])
+    # para poder iterar na criação das variáveis (score_class0, score_class1, etc)
     context = {
-        "n_classes": n_classes,
+        "classes": list(range(n_classes)),
         "features": [],
     }
 

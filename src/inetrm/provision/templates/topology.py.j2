@@ -6,6 +6,8 @@ from mininet.net import Containernet
 from mininet.node import Controller, OVSSwitch
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
+from customs import orchestrate
+
 
 def create_nodes(net):
     nodes_dict = {}
@@ -31,7 +33,7 @@ def create_links(net, nodes_dict):
     {% endfor %}
 
 def post_init(nodes_dict):
-    info('*** Compiling P4 and starting simple_switch in BMv2 nodes\n')
+    info('*** Compiling P4, starting simple_switch in BMv2 nodes and orchestrating via custom scripts\n')
     
     {% for node in nodes %}
     {% if node.type == 'bmv2' %}
@@ -52,6 +54,8 @@ def post_init(nodes_dict):
     
     {% endif %}
     {% endfor %}
+
+    orchestrate(nodes_dict, duration)
     return
 
 def parse_arguments():
@@ -61,7 +65,7 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    duration = args.time
+    global duration = args.time
 
     net = Containernet(controller=Controller)
 
