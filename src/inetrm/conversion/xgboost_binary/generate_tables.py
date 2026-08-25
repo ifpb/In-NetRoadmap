@@ -58,7 +58,7 @@ def generate_tables(regras_dict: dict, features: dict, output_path: str, thresho
             features[fea].sort()
             
             for i in range(len(features[fea]) - 1):
-                range_str = f"{features[fea][i]}->{features[fea][i+1]}"
+                range_str = f"{int(features[fea][i])}->{int(features[fea][i+1])}"
                 f.write(f"table_add feature{idx+1}_exact set_actionselect{idx+1} {range_str} => {i+1} 0\n")
         
         for tree_idx, (tree_name, rules) in enumerate(parsed_trees.items()):

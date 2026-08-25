@@ -98,7 +98,7 @@ struct metadata {
     bit<{{ f.datatype }}> {{ f.name }};
     bit<14> action_select{{ f.index }};
 {% endfor %}
-    bit<64> xgb_score; 
+    bit<32> xgb_score; 
     bit<3>  result;
 }
 
@@ -228,19 +228,20 @@ control MyIngress(inout headers hdr,
     }
 {% endfor %}
 
-action add_tree_weight(bit<32> scaled_weight) {
-        meta.xgb_score = meta.xgb_score + scaled_weight;
-    }
-
 // ************************* //
 // XGBOOST BINARY CLASSIFIER //
 // ************************* //
+
+    action add_tree_weight(bit<32> scaled_weight) {
+        meta.xgb_score = meta.xgb_score + scaled_weight;
+    }
+
 
 {% for t in trees %}
     table tree{{ t.index }}_exact {
         key = {
 {% for f_idx in t.features_used %}
-            meta.action_select{{ f_idx }}: exact;
+            meta.action_select{{ f_idx }}: range;
 {% endfor %}
         }
         actions = {
