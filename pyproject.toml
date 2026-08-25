@@ -20,6 +20,7 @@ dependencies = [
 	"numpy",
 	"matplotlib",
 	"scikit-learn",
+	"xgboost",
 	"seaborn",
 	"scipy",
 	"jupyter",

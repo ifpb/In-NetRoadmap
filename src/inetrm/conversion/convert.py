@@ -1,6 +1,7 @@
 from .decision_tree import convert_decision_tree
 from .random_forest import convert_random_forest
 from .naive_bayes import convert_naive_bayes
+from .xgboost_binary import convert_xgboost_binary
 
 
 def convert(cfg: dict, model, p4_output_path: str, table_output_path: str):
@@ -12,6 +13,8 @@ def convert(cfg: dict, model, p4_output_path: str, table_output_path: str):
         convert_random_forest(cfg, model, p4_output_path, table_output_path)
     elif model_type == "naive_bayes":
         convert_naive_bayes(cfg, model, p4_output_path, table_output_path)
+    elif model_type == "xgboost_binary":
+        convert_xgboost_binary(cfg, model, p4_output_path, table_output_path)
     else:
         raise ValueError(
             f"Unsupported model type defined in configuration: '{model_type}'"

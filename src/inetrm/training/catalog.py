@@ -3,6 +3,7 @@ class Model:
         "decision_tree",
         "naive_bayes",
         "random_forest",
+        "xgboost_binary",
     }
     FEATURE_CATALOG = {
         "sport",
@@ -34,6 +35,7 @@ class Model:
         "decision_tree": "train_DT.ipynb",
         "naive_bayes": "train_NB.ipynb",
         "random_forest": "train_RF.ipynb",
+        "xgboost_binary": "train_XGBB.ipynb",
     }
 
     def __init__(self, model: str, features: list):
