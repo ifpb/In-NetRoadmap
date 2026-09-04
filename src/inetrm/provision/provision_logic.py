@@ -20,7 +20,7 @@ def get_params(root):
     scripts_source = pwd_path / "containernet"
 
     params = {
-        "image": "containernet/containernet:latest",
+        "image": "icaruuuuuu/containernet:latest",
         "name": "containernet-lab",
         "detach": True,
         "privileged": True,
