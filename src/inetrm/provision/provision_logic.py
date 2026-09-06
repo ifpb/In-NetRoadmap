@@ -105,6 +105,7 @@ def up(params: dict, duration: int = 60):
     print("Provisioning topology...")
     client = docker.from_env()
     container = client.containers.run(**params)
+    network = client.networks.get("lab-network")
     container.exec_run("bash -c 'service openvswitch-switch start'")
     print(f"Will be up for {duration} seconds.")
     exit_code, output = container.exec_run(f"bash -c 'python3 /scripts/topology.py -t {duration}'")
@@ -112,3 +113,4 @@ def up(params: dict, duration: int = 60):
     print("Provision successful! Removing containers.")
     container.stop()
     container.remove()
+    network.remove()
