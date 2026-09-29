@@ -1,53 +1,59 @@
 # pyright: reportAttributeAccessIssue=false
 
-from sklearn.tree import DecisionTreeClassifier, _tree
+from sklearn.tree import _tree
 
 
-def exportar_regras_modelo(
-    modelo: DecisionTreeClassifier,
-    features: list[str],
-):
+def _simplify_conditions(conditions, features):
+    """
+    A partir de uma lista de (feature, sinal, threshold), calcula o
+    intervalo [lo, hi] mais justo por feature.
+    Convenção: lo default = 0; hi default = None (range completo).
+    """
+    bounds = {f: {"lo": 0, "hi": None} for f in features}
 
-    def _add_value(table, key, value):
-        # value = int(new_value)
-        if key not in table:
-            table[key] = []
-            table[key].append(value)
-            return
+    for feature, sign, threshold in conditions:
+        t = int(threshold)
 
-        if value not in table[key]:
-            table[key].append(value)
+        if sign == "<=":
+            if bounds[feature]["hi"] is None or t < bounds[feature]["hi"]:
+                bounds[feature]["hi"] = t
+        else:  # ">"
+            lo = t + 1
+            if lo > bounds[feature]["lo"]:
+                bounds[feature]["lo"] = lo
 
-    res = {}
+    return bounds
 
+
+def exportar_regras_modelo(modelo, features):
+    """
+    Retorna uma lista de regras, uma por folha, com o intervalo
+    [lo, hi] mais justo por feature (inteiros).
+    """
+    tree = modelo.tree_
     regras = []
 
     def _recursive(node, conditions):
-        if modelo.tree_.children_left[node] == _tree.TREE_LEAF:
-            regras.append(
-                f"when {' and '.join(conditions)} then {modelo.tree_.value[node].argmax()}"
-            )
+        if tree.children_left[node] == _tree.TREE_LEAF:
+            bounds = _simplify_conditions(conditions, features)
+            regras.append({
+                "bounds": bounds,
+                "class": int(modelo.classes_[tree.value[node].argmax()]),
+                "samples": int(tree.n_node_samples[node]),
+            })
             return
 
-        feature = features[modelo.tree_.feature[node]]
-        threshold = int(modelo.tree_.threshold[node])
+        feature = features[tree.feature[node]]
+        threshold = tree.threshold[node]
 
-        _add_value(res, feature, threshold)
-
-        left_conditions = conditions + [f"{feature}<={threshold}"]
-        _recursive(modelo.tree_.children_left[node], left_conditions)
-
-        right_conditions = conditions + [f"{feature}>{threshold}"]
-        _recursive(modelo.tree_.children_right[node], right_conditions)
+        _recursive(
+            tree.children_left[node],
+            conditions + [(feature, "<=", threshold)],
+        )
+        _recursive(
+            tree.children_right[node],
+            conditions + [(feature, ">", threshold)],
+        )
 
     _recursive(0, [])
-
-    res["regras"] = regras
-
-    for feature in features:
-        try:
-            res[feature] = sorted(res[feature])
-        except:
-            res[feature] = []
-
-    return res
+    return regras
