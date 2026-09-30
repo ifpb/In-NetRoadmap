@@ -29,7 +29,7 @@ def create_nodes(net):
 def create_links(net, nodes_dict):
     info('*** Linking topology\n')
     {% for link in links %}
-    net.addLink(nodes_dict['{{ link[0] }}'], nodes_dict['{{ link[1] }}'])
+    net.addLink(nodes_dict['{{ link[0] }}'], nodes_dict['{{ link[1] }}'], addr1='00:00:00:00:00:0{{ loop.index * 2 - 1 }}', addr2='00:00:00:00:00:0{{ loop.index * 2 }}')
     {% endfor %}
 
 def post_init(nodes_dict):
