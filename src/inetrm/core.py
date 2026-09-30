@@ -26,7 +26,9 @@ def load_config(config_path: str) -> dict:
 
     try:
         with open(path, "rb") as f:
-            return tomli.load(f)
+            cfg = tomli.load(f)
+            cfg["ml"]["features"] = sorted(cfg["ml"]["features"])
+            return cfg
     except tomli.TOMLDecodeError as e:
         raise ValueError(f"Error parsing TOML file: {e}")
 
