@@ -47,7 +47,7 @@ def validate_data(cfg: dict, file_path: str) -> None:
     print("Data Validated Successfully")
 
 
-def create_notebook(cfg: dict, data: str, output_dir: str) -> str:
+def create_notebook(cfg: dict, data: list, output_dir: str) -> str:
     model_name = cfg["ml"]["model"]
     ipynb_file = Model.JUPYTER_MAPPING[model_name]
 
@@ -60,14 +60,15 @@ def create_notebook(cfg: dict, data: str, output_dir: str) -> str:
     with open(template_path, "r", encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
 
-    data_path = Path(data).resolve()
+    data_paths = [str(Path(d).resolve()) for d in data]
     out_dir = Path(output_dir).resolve()
     notebook_path = f"{out_dir}/{model_name}.ipynb"
     features_list = cfg["ml"]["features"]
     model_parameters = cfg.get("ml", {}).get("parameters", {})
 
     code_lines = [
-        f"input_dataset = {repr(str(data_path))}",
+        f"input_dataset = {repr(str(data_paths[0]))}",
+        f"test_datasets = {str(data_paths[1:])}",
         f"output_dir = {repr(str(out_dir))}",
         f"features = {repr(features_list)}",
         f"model_parameters = {repr(model_parameters)}",

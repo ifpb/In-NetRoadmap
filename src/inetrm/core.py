@@ -54,11 +54,12 @@ def run_init(output_dir: str):
     return str(dest_path.resolve())
 
 
-def run_train(cfg: dict, data_path: str, output_dir: str) -> str:
+def run_train(cfg: dict, data_path: tuple, output_dir: str) -> str:
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     a.validate_model(cfg)
-    a.validate_data(cfg, data_path)
+    for dataset in data_path:
+        a.validate_data(cfg, dataset)
 
     notebook_path = a.create_notebook(cfg, data_path, output_dir)
     return notebook_path

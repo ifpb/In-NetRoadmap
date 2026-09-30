@@ -84,15 +84,23 @@ def init(output_dir, verify):
     type=click.Path(),
     help="Path to the output dir for artifacts.",
 )
+@click.option(
+    "--append-dataset",
+    "-d",
+    multiple=True,
+    default=tuple(),
+    type=click.Path(exists=True),
+    help="Path to other datasets to test the model on"
+)
 @click.argument("data", type=click.Path(exists=True))
 @click.pass_context
-def train(ctx, output_dir, data):
+def train(ctx, output_dir, append_dataset, data):
     cfg = ctx.obj.get("config", {})
 
     click.secho("Validating configuration and generating notebook...", fg="cyan")
 
     try:
-        notebook_path = core.run_train(cfg, data, output_dir)
+        notebook_path = core.run_train(cfg, [data] + [d for d in append_dataset], output_dir)
         click.secho(f"Notebook created at: {notebook_path}", fg="green")
 
         a.initiate_jupyter(notebook_path)
