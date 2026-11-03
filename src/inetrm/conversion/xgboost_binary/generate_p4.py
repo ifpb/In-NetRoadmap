@@ -3,10 +3,11 @@ import os
 from ..datatypes import get_datatype, get_source_from_type, translate_name
 from ..renderer import render_template
 
-def generate_p4(features: list, regras_dict: dict, output_path: str) -> None:
+def generate_p4(features: list, regras_dict: dict, output_path: str, score_inicial: int) -> None:
     context = {
         "features": [],
         "trees": [],
+        "score_inicial": score_inicial
     }
 
     for i, feature in enumerate(features, 1):

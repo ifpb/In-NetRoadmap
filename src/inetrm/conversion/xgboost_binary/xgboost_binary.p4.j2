@@ -232,10 +232,13 @@ control MyIngress(inout headers hdr,
 // XGBOOST BINARY CLASSIFIER //
 // ************************* //
 
-    action add_tree_weight(bit<32> scaled_weight) {
-        meta.xgb_score = meta.xgb_score + scaled_weight;
+    action add_tree_weight(bit<32> weight) {
+        meta.xgb_score = meta.xgb_score + weight;
     }
 
+    action sub_tree_weight(bit<32> weight) {
+        meta.xgb_score = meta.xgb_score - weight;
+    }
 
 {% for t in trees %}
     table tree{{ t.index }}_exact {
@@ -246,22 +249,12 @@ control MyIngress(inout headers hdr,
         }
         actions = {
             add_tree_weight;
+            sub_tree_weight;
             NoAction;
         }
         size = 1024;
     }
 {% endfor %}
-
-    action set_final_result(bit<3> result) {
-        meta.result = result;
-    }
-
-    // Tabela para comparar a soma total com o limiar
-    table apply_threshold {
-        key = { meta.xgb_score: range; }
-        actions = { set_final_result; NoAction; drop; }
-        size = 16;
-    }
 
 // ***************************** //
 // XGBOOST BINARY CLASSIFIER END //
@@ -328,11 +321,17 @@ control MyIngress(inout headers hdr,
                 feature{{ f.index }}_exact.apply();
 {% endfor %}
 
-                meta.xgb_score = 0;
+                meta.xgb_score = {{ score_inicial }};
 {% for t in trees %}
                 tree{{ t.index }}_exact.apply();
 {% endfor %}
-                apply_threshold.apply();
+
+                if (meta.xgb_score >= 2147483648) {
+                    meta.result = 1;
+                } else {
+                    meta.result = 0;
+                }
+                
                 resultCounter.count((bit<32>)meta.result);
             }
 

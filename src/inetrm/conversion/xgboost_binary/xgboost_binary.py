@@ -10,7 +10,8 @@ def convert_xgboost_binary(
     res = exportar_regras_xgboost(model, features_list)
 
     regras_dict = res.pop("regras")
+    score_inicial = res.pop("score_inicial")
     features_thresholds = res
 
-    generate_p4(features_list, regras_dict, p4_output_path)
+    generate_p4(features_list, regras_dict, p4_output_path, score_inicial)
     generate_tables(regras_dict, features_thresholds, table_output_path)

@@ -13,13 +13,13 @@ def process_xgboost_rules(regras_dict: dict, features: dict[str, list[float]]):
 
             pattern = r"(\w+)\s*(<=|>)\s*(-?\d+(?:\.\d+)?)"
             conditions = re.findall(pattern, line)
-            if not conditions:
+            
+            weight_match = re.search(r"then\s+(add|sub)\s+(\d+)", line)
+            if not weight_match:
                 continue
-
-            weight = re.findall(r"then\s+(-?\d+)", line)
-            if not weight:
-                continue
-            weight = int(weight[0])
+            
+            action, weight = weight_match.groups()
+            weight = int(weight)
 
             feature_ranges = {fea: [k for k in range(len(features[fea]) + 1)] for fea in features.keys()}
 
@@ -42,12 +42,13 @@ def process_xgboost_rules(regras_dict: dict, features: dict[str, list[float]]):
 
             rules.append({
                 "ranges": feature_ranges,
+                "action": f"{action}_tree_weight",
                 "weight": weight,
             })
         parsed_trees[tree_name] = rules
     return parsed_trees
 
-def generate_tables(regras_dict: dict, features: dict, output_path: str, threshold: int = 0):
+def generate_tables(regras_dict: dict, features: dict, output_path: str):
     parsed_trees = process_xgboost_rules(regras_dict, features)
 
     with open(output_path, "w") as f:
@@ -69,10 +70,4 @@ def generate_tables(regras_dict: dict, features: dict, output_path: str, thresho
                     a = rule["ranges"][fea]
                     ranges_str += f"{a[0] + 1}->{a[-1] + 1} "
                 
-                f.write(f"table_add {table_name} add_tree_weight {ranges_str.strip()} => {rule['weight']} 0\n")
-        
-        min_score = -2147483648
-        max_score = 2147483647
-        
-        f.write(f"table_add apply_threshold set_final_result {min_score}->{threshold - 1} => 0 0\n")
-        f.write(f"table_add apply_threshold set_final_result {threshold}->{max_score} => 1 0\n")
+                f.write(f"table_add {table_name} {rule['action']} {ranges_str.strip()} => {rule['weight']} 0\n")
