@@ -5,6 +5,10 @@
 const bit<16> TYPE_IPV4 = 0x800;
 const bit<8> PROTO_INT = 253;
 const bit<8> PROTO_TCP = 6;
+/* Mirroring Constants */
+const bit<16> TYPE_MIRROR = 0x88B5;          /* IEEE 802 local experimental EtherType 1 */
+const bit<32> MIRROR_SESSION_ID = 100;       /* must match: mirroring_add 100 <mirror port> */
+const bit<32> PKT_INSTANCE_TYPE_INGRESS_CLONE = 1;   /* v1model/BMv2 instance_type of an I2E clone */
 
 #define MAX_HOPS 10
 
@@ -34,6 +38,13 @@ header ethernet_h {
     macAddr_v dstAddr;
     macAddr_v srcAddr;
     bit<16>   etherType;
+}
+
+header mirror_h {
+    bit<16> src_port;       /* TCP source port of the original packet      */
+    bit<16> dst_port;       /* TCP destination port of the original packet */
+    bit<8>  result;         /* decision-tree class (0..3)                  */
+    bit<16> next_type;      /* original EtherType, so the payload stays parseable */
 }
 
 header ipv4_h {
@@ -99,11 +110,18 @@ struct metadata {
     bit<14> action_select{{ f.index }};
 {% endfor %}
     bit<32> xgb_score; 
+    bit<1>  classified;                 /* 1 if the model ran on this packet */
+    @field_list(1)
     bit<3>  result;
+    @field_list(1)
+    bit<16> mirror_src_port;
+    @field_list(1)
+    bit<16> mirror_dst_port;
 }
 
 struct headers {
     ethernet_h         ethernet;
+    mirror_h           mirror;
     ipv4_h             ipv4;
     tcp_h              tcp;
     nodeCount_h        nodeCount;
@@ -312,8 +330,9 @@ control MyIngress(inout headers hdr,
 
     apply {
         meta.flowID = 0;
+        meta.classified = 0;
         if (hdr.ipv4.isValid()) {
-            if (hdr.tcp.isValid() && !hdr.nodeCount.isValid() && hdr.tcp.srcPort != 5201 && hdr.tcp.dstPort != 5201) {
+            if (hdr.tcp.isValid() && !hdr.nodeCount.isValid()) {
                 find_flowID_ipv4();
                 extract_features();
 
@@ -333,9 +352,17 @@ control MyIngress(inout headers hdr,
                 }
                 
                 resultCounter.count((bit<32>)meta.result);
+                meta.classified = 1;
             }
 
             ipv4_lpm.apply();
+
+            /* Mirror only packets that actually went through the tree. */
+            if (meta.classified == 1) {
+                meta.mirror_src_port = hdr.tcp.srcPort;
+                meta.mirror_dst_port = hdr.tcp.dstPort;
+                clone_preserving_field_list(CloneType.I2E, MIRROR_SESSION_ID, 1);
+            }
         }
     }
 }
@@ -375,7 +402,15 @@ control MyEgress(inout headers hdr,
     }
 
     apply {
-        if (hdr.nodeCount.isValid()) {
+        if (standard_metadata.instance_type == PKT_INSTANCE_TYPE_INGRESS_CLONE) {
+            /* This is the mirrored copy: tag it. The original is untouched. */
+            hdr.mirror.setValid();
+            hdr.mirror.src_port     = meta.mirror_src_port;
+            hdr.mirror.dst_port     = meta.mirror_dst_port;
+            hdr.mirror.result       = (bit<8>)meta.result;
+            hdr.mirror.next_type    = hdr.ethernet.etherType;
+            hdr.ethernet.etherType  = TYPE_MIRROR;
+        } else if (hdr.nodeCount.isValid()) {
             swtrace.apply();
         }
     }
@@ -412,6 +447,7 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
 control MyDeparser(packet_out packet, in headers hdr) {
     apply {
         packet.emit(hdr.ethernet);
+        packet.emit(hdr.mirror);
         packet.emit(hdr.ipv4);
         packet.emit(hdr.tcp);
         packet.emit(hdr.nodeCount);
